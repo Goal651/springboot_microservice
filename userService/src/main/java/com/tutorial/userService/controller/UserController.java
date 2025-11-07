@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tutorial.userService.model.User;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @GetMapping("/{id}")
