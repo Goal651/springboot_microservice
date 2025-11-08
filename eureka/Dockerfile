@@ -16,7 +16,7 @@ RUN mvn clean package -DskipTests
 # ==========================
 # Stage 2 — Run the app
 # ==========================
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 # Set working directory
 WORKDIR /app
