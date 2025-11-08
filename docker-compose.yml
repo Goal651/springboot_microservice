@@ -1,0 +1,46 @@
+services:
+  user-service:
+    build: ./userService
+    container_name: user-service
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+    networks:
+      - micro-net
+
+  eureka:
+    build: ./eureka
+    container_name: eureka
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - micro-net
+
+  config-server:
+    build: ./configServer
+    container_name: config-server
+    restart: always
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka
+    networks:
+      - micro-net
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka
+      - config-server
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
