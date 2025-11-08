@@ -13,9 +13,9 @@ public interface UserClient {
 
     @CircuitBreaker(name = "userServiceCircuitBreaker", fallbackMethod = "fallbackGetUserById")
     @GetMapping("/users/{id}")
-    User getUserById(@PathVariable("id") String id);
+    User getUserById(@PathVariable("id") Long id);
 
-    default User fallbackGetUserById(String id, Throwable throwable) {
+    default User fallbackGetUserById(Long id, Throwable throwable) {
         return new User(id, "Fallback User", "fallback@example.com");
     }
 }

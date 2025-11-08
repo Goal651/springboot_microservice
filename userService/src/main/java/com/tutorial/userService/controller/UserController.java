@@ -6,13 +6,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tutorial.userService.model.User;
+import com.tutorial.userService.services.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable String id) {
-        return new User(id, "John Doe", "john.doe@example.com");
+    public User getUserById(@PathVariable Long id) {
+        User user = new User(id, "John Doe", "john.doe@example.com");
+        return userService.saveUser(user);
     }
 }
