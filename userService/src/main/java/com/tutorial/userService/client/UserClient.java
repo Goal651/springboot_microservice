@@ -16,6 +16,6 @@ public interface UserClient {
     User getUserById(@PathVariable("id") Long id);
 
     default User fallbackGetUserById(Long id, Throwable throwable) {
-        return new User(id, "Fallback User", "fallback@example.com");
+        return new User();
     }
 }

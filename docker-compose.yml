@@ -7,6 +7,7 @@ services:
       - "8081:8081"
     depends_on:
       - eureka
+      - db
     networks:
       - micro-net
 
@@ -26,7 +27,7 @@ services:
     ports:
       - "8888:8888"
     depends_on:
-      - eureka
+      - eureka      
     networks:
       - micro-net
 

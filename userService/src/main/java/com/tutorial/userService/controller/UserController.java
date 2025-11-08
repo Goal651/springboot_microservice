@@ -19,7 +19,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        User user = new User(id, "John Doe", "john.doe@example.com");
+        User user = new User();
+        user.setName("John Doe");
+        user.setEmail("john.doe@example.com");
         return userService.saveUser(user);
     }
 }
