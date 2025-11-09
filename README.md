@@ -1,12 +1,12 @@
 # Spring Boot Microservices Template
 
-A production-ready microservices architecture template built with Spring Boot 3.5.7, Spring Cloud 2025.0.0, and Docker. This template demonstrates best practices for building scalable, resilient microservices with service discovery, API gateway, centralized configuration, and database integration.
+A production-ready microservices architecture template built with Spring Boot 3.5.7, Spring Cloud 2025.0.0, Apache Kafka, and Docker. This template demonstrates best practices for building scalable, resilient microservices with service discovery, API gateway, centralized configuration, event-driven architecture, and database integration.
 
 ⭐ **If you find this project helpful, please consider giving it a star!** ⭐
 
 ## 🏗️ Architecture Overview
 
-This template implements a complete microservices ecosystem with the following components:
+This template implements a complete microservices ecosystem with event-driven communication:
 
 ```sh
 ┌─────────────┐
@@ -27,18 +27,27 @@ This template implements a complete microservices ecosystem with the following c
 │   - Service Registry                │
 └──────┬──────────────────────────────┘
        │
-       ├──────────────────┬─────────────────┐
-       ▼                  ▼                 ▼
-┌─────────────┐   ┌──────────────┐  ┌─────────────┐
-│Config Server│   │ User Service │  │   Future    │
-│ (Port 8888) │   │ (Port 8081)  │  │  Services   │
-└─────────────┘   └──────┬───────┘  └─────────────┘
-                         │
-                         ▼
-                  ┌──────────────┐
-                  │  PostgreSQL  │
-                  │ (Port 2500)  │
-                  └──────────────┘
+       ├──────────────────┬─────────────────┬──────────────────┐
+       ▼                  ▼                 ▼                  ▼
+┌─────────────┐   ┌──────────────┐  ┌──────────────┐  ┌─────────────┐
+│Config Server│   │ User Service │  │ Notification │  │   Future    │
+│ (Port 8888) │   │ (Port 8081)  │  │   Service    │  │  Services   │
+└─────────────┘   └──────┬───────┘  │ (Port 8082)  │  └─────────────┘
+                         │          └──────▲───────┘
+                         │                 │
+                         ▼                 │
+                  ┌──────────────┐         │
+                  │  PostgreSQL  │         │
+                  │ (Port 2500)  │         │
+                  └──────────────┘         │
+                         │                 │
+                         └─────────────────┘
+                                   │
+                         ┌─────────▼─────────┐
+                         │  Kafka + Zookeeper│
+                         │  (Ports 9092/2181)│
+                         │  Event Streaming  │
+                         └───────────────────┘
 ```
 
 ## 📦 Components
@@ -72,11 +81,41 @@ This template implements a complete microservices ecosystem with the following c
   - RESTful API endpoints
   - PostgreSQL database integration
   - JPA/Hibernate ORM
+  - Kafka event producer (publishes user events)
   - OpenFeign client for inter-service communication
   - Resilience4j for circuit breaker pattern
   - Spring Boot Actuator for monitoring
 
-### 5. **PostgreSQL Database**
+### 5. **Notification Service** (Event Consumer)
+
+- **Port:** 8082
+- **Purpose:** Demonstrates event-driven microservice architecture
+- **Features:**
+  - Kafka event consumer (listens to user events)
+  - Processes USER_CREATED, USER_UPDATED, USER_DELETED events
+  - Asynchronous event processing
+  - Decoupled from User Service
+
+### 6. **Apache Kafka** (Event Streaming Platform)
+
+- **Port:** 9092 (external), 29092 (internal)
+- **Purpose:** Message broker for asynchronous communication between services
+- **Features:**
+  - Event streaming and pub/sub messaging
+  - Decouples microservices
+  - Enables event-driven architecture
+  - Auto-creates topics on demand
+
+### 7. **Apache Zookeeper**
+
+- **Port:** 2181
+- **Purpose:** Coordination service for Kafka
+- **Features:**
+  - Manages Kafka cluster metadata
+  - Handles leader election
+  - Tracks broker membership
+
+### 8. **PostgreSQL Database**
 
 - **Port:** 2500 (host) → 5432 (container)
 - **Database:** userdb
@@ -108,19 +147,23 @@ This template implements a complete microservices ecosystem with the following c
 
    This command will:
    - Build all Docker images
+   - Start Zookeeper (Kafka coordinator)
+   - Start Kafka broker
    - Start PostgreSQL database
    - Start Eureka Server
    - Start Config Server
    - Start API Gateway
-   - Start User Service
+   - Start User Service (Kafka producer)
+   - Start Notification Service (Kafka consumer)
 
-3. **Wait for services to start** (approximately 2-3 minutes)
+3. **Wait for services to start** (approximately 3-4 minutes)
    - Monitor logs: `docker-compose logs -f`
    - Check Eureka Dashboard: <http://localhost:8761>
+   - Kafka takes ~30 seconds to be ready
 
 4. **Verify services are registered**
    - Open <http://localhost:8761>
-   - You should see `USER-SERVICE`, `API-GATEWAY`, and `CONFIG-SERVER` registered
+   - You should see `USER-SERVICE`, `NOTIFICATION-SERVICE`, `API-GATEWAY`, and `CONFIG-SERVER` registered
 
 ### Testing the Application
 
@@ -140,6 +183,20 @@ curl http://localhost:8081/users/1
 
 ```bash
 curl http://localhost:8081/actuator/health
+```
+
+**Test Kafka Event Flow:**
+
+```bash
+# Create a user (triggers Kafka event)
+curl http://localhost:8081/users/1
+
+# Check notification-service logs to see event consumed
+docker-compose logs -f notification-service
+
+# You should see:
+# "Received user event: UserEvent(...)"
+# "Processing USER_CREATED event for user: John Doe"
 ```
 
 ## 🛠️ Technology Stack
@@ -163,6 +220,12 @@ curl http://localhost:8081/actuator/health
 - **PostgreSQL:** 15
 - **Spring Data JPA:** Data access layer
 - **Hibernate:** ORM framework
+
+### Event Streaming
+
+- **Apache Kafka:** 7.5.0 (Confluent Platform)
+- **Apache Zookeeper:** 7.5.0 (Confluent Platform)
+- **Spring Kafka:** Event-driven messaging
 
 ### Additional Libraries
 
@@ -191,7 +254,7 @@ SPRINGBOOT_MICROSERVICE/
 │   ├── src/
 │   ├── Dockerfile
 │   └── pom.xml
-├── userService/               # Example Microservice
+├── userService/               # User Microservice (Kafka Producer)
 │   ├── src/
 │   │   └── main/
 │   │       ├── java/
@@ -200,12 +263,26 @@ SPRINGBOOT_MICROSERVICE/
 │   │       │       ├── model/           # JPA entities
 │   │       │       ├── repositories/    # Data repositories
 │   │       │       ├── services/        # Business logic
+│   │       │       ├── producer/        # Kafka producers
+│   │       │       ├── dto/             # Data transfer objects
+│   │       │       ├── config/          # Kafka configuration
 │   │       │       └── client/          # Feign clients
 │   │       └── resources/
 │   │           └── application.properties
 │   ├── Dockerfile
 │   └── pom.xml
-└── docker-compose.yml         # Docker orchestration
+├── notificationService/       # Notification Service (Kafka Consumer)
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/tutorial/notificationService/
+│   │       │       ├── consumer/        # Kafka consumers
+│   │       │       └── dto/             # Data transfer objects
+│   │       └── resources/
+│   │           └── application.properties
+│   ├── Dockerfile
+│   └── pom.xml
+└── docker-compose.yml         # Docker orchestration (includes Kafka & Zookeeper)
 ```
 
 ## 🔧 Configuration
@@ -229,15 +306,96 @@ All services register with Eureka using the container hostname:
 eureka.client.service-url.defaultZone=http://eureka:8761/eureka
 ```
 
+### Kafka Configuration
+
+**Producer (userService):**
+
+```properties
+spring.kafka.bootstrap-servers=kafka:29092
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+spring.kafka.producer.properties.spring.json.add.type.headers=false
+```
+
+**Consumer (notificationService):**
+```properties
+spring.kafka.bootstrap-servers=kafka:29092
+spring.kafka.consumer.group-id=notification-service-group
+spring.kafka.consumer.auto-offset-reset=earliest
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties.spring.json.use.type.headers=false
+```
+
+**Key Points:**
+- Use `kafka:29092` inside Docker containers
+- Use `localhost:9092` from host machine
+- Disable type headers to avoid class mismatch issues
+
 ### Port Mapping
 
-| Service        | Container Port | Host Port |
-|----------------|----------------|-----------|
-| API Gateway    | 8080           | 8080      |
-| User Service   | 8081           | 8081      |
-| Eureka Server  | 8761           | 8761      |
-| Config Server  | 8888           | 8888      |
-| PostgreSQL     | 5432           | 2500      |
+| Service              | Container Port | Host Port |
+|----------------------|----------------|-----------|
+| API Gateway          | 8080           | 8080      |
+| User Service         | 8081           | 8081      |
+| Notification Service | 8082           | 8082      |
+| Eureka Server        | 8761           | 8761      |
+| Config Server        | 8888           | 8888      |
+| Kafka                | 29092          | 9092      |
+| Zookeeper            | 2181           | 2181      |
+| PostgreSQL           | 5432           | 2500      |
+
+## 📨 Event-Driven Architecture with Kafka
+
+This template demonstrates asynchronous, event-driven communication between microservices using Apache Kafka.
+
+### How It Works
+
+1. **User Service (Producer)** publishes events when users are created/updated/deleted
+2. **Kafka** stores these events in the `user-events` topic
+3. **Notification Service (Consumer)** listens to events and processes them asynchronously
+
+### Event Flow Example
+
+```
+Client → POST /users/1 → userService
+                            ↓
+                    Save to PostgreSQL
+                            ↓
+                    Publish UserEvent to Kafka
+                            ↓
+                    Return response to client (fast!)
+                            ↓
+                         Kafka Topic
+                            ↓
+                    notificationService receives event
+                            ↓
+                    Process notification (send email, log, etc.)
+```
+
+### Benefits
+
+- **Decoupling:** Services don't need to know about each other
+- **Scalability:** Add more consumers without changing producers
+- **Resilience:** If consumer is down, events are queued in Kafka
+- **Asynchronous:** Client doesn't wait for notification processing
+
+### Event Types
+
+Currently supported events in `user-events` topic:
+- `USER_CREATED` - When a new user is created
+- `USER_UPDATED` - When user information is updated
+- `USER_DELETED` - When a user is deleted
+
+### Adding New Event Types
+
+To add new event types (e.g., order events, payment events):
+
+1. Create a new topic in `KafkaProducerConfig.java`
+2. Create corresponding DTO classes
+3. Implement producer in the source service
+4. Implement consumer in the target service
+5. Use separate topics for different event types (best practice)
 
 ## 🎯 Adding a New Microservice
 
@@ -398,6 +556,41 @@ docker-compose down
 
 # Or change port in docker-compose.yml
 ```
+
+### Issue: Kafka deserialization errors
+
+**Problem:** `ClassNotFoundException` or `failed to resolve class name` errors
+
+**Solution:**
+
+1. Ensure both producer and consumer have matching DTO classes
+2. Disable type headers in configuration:
+   ```properties
+   # Producer
+   spring.kafka.producer.properties.spring.json.add.type.headers=false
+   
+   # Consumer
+   spring.kafka.consumer.properties.spring.json.use.type.headers=false
+   ```
+3. Clear Kafka topics and restart:
+   ```bash
+   docker-compose down
+   docker volume prune -f
+   docker-compose up --build
+   ```
+
+### Issue: Kafka not receiving events
+
+**Problem:** Producer sends events but consumer doesn't receive them
+
+**Solutions:**
+
+1. Check Kafka is running: `docker ps | grep kafka`
+2. Verify topic exists: `docker exec -it kafka kafka-topics --list --bootstrap-server localhost:9092`
+3. Check consumer group: `docker-compose logs -f notification-service`
+4. Ensure correct bootstrap server:
+   - Inside Docker: `kafka:29092`
+   - Outside Docker: `localhost:9092`
 
 ## 📚 API Documentation
 
