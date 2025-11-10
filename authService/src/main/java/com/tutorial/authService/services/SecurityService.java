@@ -1,6 +1,5 @@
 package com.tutorial.authService.services;
 
-import java.util.UUID;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +22,7 @@ public class SecurityService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getId().toString())
-                .password(user.getEmail())
+                .password(user.getPassword())
                 .authorities("ROLE_USER")
                 .build();
     }
