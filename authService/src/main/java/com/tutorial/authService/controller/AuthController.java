@@ -21,10 +21,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@RequestBody UserRequest user) {
         User savedUser = new User();
-        savedUser.setName("john doe");
-        savedUser.setEmail("john.doe@example.com");
+        savedUser.setName(user.getName());
+        savedUser.setEmail(user.getEmail());
+        savedUser.setPassword(user.getPassword());
         return ResponseEntity.ok(authService.register(savedUser));
     }
 
