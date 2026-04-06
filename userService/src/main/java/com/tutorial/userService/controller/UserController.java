@@ -2,10 +2,8 @@ package com.tutorial.userService.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.tutorial.userService.model.User;
 import com.tutorial.userService.producer.UserEventProducer;
@@ -22,10 +20,33 @@ public class UserController {
     private final UserEventProducer userEventProducer;
 
     @GetMapping
-    public List<User> getUsers() {
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 
-        // userEventProducer.sendUserCreatedEvent(savedUser.getId(),
-        // savedUser.getName(), savedUser.getEmail());
-        return userService.saveUser();
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        userEventProducer.sendUserCreatedEvent(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
+        return ResponseEntity.ok(createdUser);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        userEventProducer.sendUserUpdatedEvent(updatedUser.getId(), updatedUser.getName(), updatedUser.getEmail());
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        userEventProducer.sendUserDeletedEvent(id);
+        return ResponseEntity.noContent().build();
     }
 }
