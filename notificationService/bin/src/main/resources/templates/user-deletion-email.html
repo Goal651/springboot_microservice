@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deletion Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #e74c3c;
+            margin: 0;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+        }
+        .alert {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #e2f0ff;
+            border: 1px solid #b3d9ff;
+            color: #0056b3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Account Deletion Confirmation</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong th:text="${userName}">User</strong>,</p>
+            
+            <div class="alert">
+                <strong>Your account has been permanently deleted.</strong>
+            </div>
+            
+            <p>We're writing to confirm that your account associated with the email <strong th:text="${toEmail}">email@example.com</strong> has been successfully removed from our system.</p>
+            
+            <h3>What This Means:</h3>
+            <ul>
+                <li>Your personal data has been deleted from our active database</li>
+                <li>You can no longer access your account</li>
+                <li>Your email address is now available for new account registration</li>
+            </ul>
+            
+            <div class="info-box">
+                <h4>Important Information:</h4>
+                <p>While your account has been deleted, some information may be retained for:</p>
+                <ul>
+                    <li>Legal compliance requirements</li>
+                    <li>Fraud prevention</li>
+                    <li>System security purposes</li>
+                </ul>
+                <p>This data is anonymized and stored securely according to our privacy policy.</p>
+            </div>
+            
+            <h3>Changed Your Mind?</h3>
+            <p>If you deleted your account by mistake or wish to return, you'll need to:</p>
+            <ol>
+                <li>Create a new account using your email address</li>
+                <li>Set up your profile from scratch</li>
+                <li>Reconnect with any contacts or services</li>
+            </ol>
+            
+            <p>We're sorry to see you go! If you have any feedback about your experience or need assistance with anything else, please don't hesitate to reach out to our support team.</p>
+            
+            <p>Thank you for being part of our community.</p>
+            
+            <p>Best regards,<br>
+            The Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>© 2024 Our Service. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -16,6 +16,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("User Service is running!");
+    }
+
     private final UserService userService;
     private final UserEventProducer userEventProducer;
 

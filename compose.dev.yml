@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile.dev
     container_name: notification-service
     volumes:
-      - ./target:/app/target
-      - ./src:/app/src
+      - ./notificationService/target:/app/target
+      - ./notificationService/src:/app/src
       - ~/.m2:/root/.m2
     restart: always
     ports:
