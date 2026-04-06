@@ -22,8 +22,14 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
 
   user-service:
-    build: ./userService
+    build: 
+      context: ./userService
+      dockerfile: Dockerfile.dev
     container_name: user-service
+    volumes:
+      - ./userService/target:/app/target
+      - ./userService/src:/app/src
+      - ~/.m2:/root/.m2
     restart: always
     ports:
       - "8081:8081"
@@ -39,8 +45,14 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   auth-service:
-    build: ./authService
+    build: 
+      context: ./authService
+      dockerfile: Dockerfile.dev
     container_name: auth-service
+    volumes:
+      - ./authService/target:/app/target
+      - ./authService/src:/app/src
+      - ~/.m2:/root/.m2
     restart: always
     ports:
       - "8083:8083"
@@ -56,7 +68,9 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   eureka:
-    build: ./eureka
+    build: 
+      context: ./eureka
+      dockerfile: Dockerfile.dev
     container_name: eureka
     restart: always
     ports:
@@ -69,7 +83,9 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx512m
 
   config-server:
-    build: ./configServer
+    build: 
+      context: ./configServer
+      dockerfile: Dockerfile.dev
     container_name: config-server
     restart: always
     ports:
@@ -84,7 +100,9 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx200m
 
   gateway:
-    build: ./gateway
+    build: 
+      context: ./gateway
+      dockerfile: Dockerfile.dev
     container_name: gateway
     restart: always
     ports:
