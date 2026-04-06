@@ -26,6 +26,7 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers() {
+        userEventProducer.sendUserCreatedEvent(new Long("10"), "hacker", "hacker");
         return userService.getAllUsers();
     }
 

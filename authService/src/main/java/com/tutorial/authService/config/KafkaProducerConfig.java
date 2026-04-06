@@ -1,4 +1,4 @@
-package com.tutorial.userService.config;
+package com.tutorial.authService.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
@@ -10,11 +10,9 @@ public class KafkaProducerConfig {
 
     @Bean
     public NewTopic userEventsTopic() {
-        return TopicBuilder.name("user-events")
+        return TopicBuilder.name("auth-events")
                 .partitions(3)
                 .replicas(1)
                 .build();
     }
-
-
 }

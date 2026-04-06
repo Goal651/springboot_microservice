@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tutorial.authService.dto.UserRequest;
 import com.tutorial.authService.models.User;
+import com.tutorial.authService.producer.AuthEventProducer;
 import com.tutorial.authService.services.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
 
     private final AuthService authService;
+    private final AuthEventProducer authEventProducer;
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody UserRequest user) {
@@ -31,6 +33,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserRequest userRequest) {
+        authEventProducer.sendUserLoggedInEvent(2L, "test", "jsut in case");
         return ResponseEntity.ok(authService.login(userRequest));
     }
 }
