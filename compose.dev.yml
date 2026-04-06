@@ -1,7 +1,13 @@
 services:
   notification-service:
-    build: ./notificationService
+    build: 
+      context: ./notificationService
+      dockerfile: Dockerfile.dev
     container_name: notification-service
+    volumes:
+      - ./target:/app/target
+      - ./src:/app/src
+      - ~/.m2:/root/.m2
     restart: always
     ports:
       - "8082:8082"
