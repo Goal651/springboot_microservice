@@ -1,0 +1,160 @@
+services:
+  notification-service:
+    build: ./notificationService
+    container_name: notification-service
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka
+      - kafka
+    networks:
+      - micro-net
+    mem_limit: 400m
+    cpus: "0.8"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
+
+  user-service:
+    build: ./userService
+    container_name: user-service
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+      - db
+      - kafka
+    networks:
+      - micro-net
+    mem_limit: 600m
+    cpus: "1.0"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+
+  auth-service:
+    build: ./authService
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka
+      - db
+      - kafka
+    networks:
+      - micro-net
+    mem_limit: 600m
+    cpus: "1.0"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+
+  eureka:
+    build: ./eureka
+    container_name: eureka
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - micro-net
+    mem_limit: 700m
+    cpus: "1.2"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx512m
+
+  config-server:
+    build: ./configServer
+    container_name: config-server
+    restart: always
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka
+    networks:
+      - micro-net
+    mem_limit: 300m
+    cpus: "0.6"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx200m
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka
+      - config-server
+    networks:
+      - micro-net
+    mem_limit: 600m
+    cpus: "1.0"
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+
+  db:
+    image: postgres:15
+    container_name: db
+    restart: always
+    ports:
+      - "2500:5432"
+    mem_limit: 800m
+    cpus: "1.5"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=userdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - micro-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    mem_limit: 500m
+    cpus: "0.6"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+    networks:
+      - micro-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    restart: always
+    ports:
+      - "19092:9092"
+    depends_on:
+      - zookeeper
+    mem_limit: 1.2g
+    cpus: "2.0"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+
+volumes:
+  postgres-data:
+  zookeeper-data:
+  zookeeper-logs:
+  kafka-data:
