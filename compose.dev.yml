@@ -1,164 +1,187 @@
 services:
   notification-service:
-    build: 
+    build:
       context: ./notificationService
       dockerfile: Dockerfile.dev
     container_name: notification-service
     volumes:
-      - ./notificationService/target:/app/target
-      - ./notificationService/src:/app/src
-      - ~/.m2:/root/.m2
+    - ./notificationService/target:/app/target
+    - ./notificationService/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
-      - "8082:8082"
+    - "8082:8082"
     depends_on:
-      - eureka
-      - kafka
+    - eureka
+    - kafka
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 400m
     cpus: "0.8"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
 
   user-service:
-    build: 
+    build:
       context: ./userService
       dockerfile: Dockerfile.dev
     container_name: user-service
     volumes:
-      - ./userService/target:/app/target
-      - ./userService/src:/app/src
-      - ~/.m2:/root/.m2
+    - ./userService/target:/app/target
+    - ./userService/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
-      - "8081:8081"
+    - "8081:8081"
     depends_on:
-      - eureka
-      - db
-      - kafka
+    - eureka
+    - db
+    - kafka
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 600m
     cpus: "1.0"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   auth-service:
-    build: 
+    build:
       context: ./authService
       dockerfile: Dockerfile.dev
     container_name: auth-service
     volumes:
-      - ./authService/target:/app/target
-      - ./authService/src:/app/src
-      - ~/.m2:/root/.m2
+    - ./authService/target:/app/target
+    - ./authService/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
-      - "8083:8083"
+    - "8083:8083"
     depends_on:
-      - eureka
-      - db
-      - kafka
+    - eureka
+    - db
+    - kafka
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 600m
     cpus: "1.0"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+
+  # mail-service:
+  #   build:
+  #     context: ./mailService
+  #     dockerfile: Dockerfile.dev
+  #   container_name: mail-service
+  #   volumes:
+  #   - ./mailService/target:/app/target
+  #   - ./mailService/src:/app/src
+  #   - ~/.m2:/root/.m2
+  #   restart: always
+  #   ports:
+  #   - "8084:8084"
+  #   depends_on:
+  #   - eureka
+  #   - db
+  #   - kafka
+  #   networks:
+  #   - micro-net
+  #   mem_limit: 600m
+  #   cpus: "1.0"
+  #   environment:
+  #   - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   eureka:
-    build: 
+    build:
       context: ./eureka
       dockerfile: Dockerfile.dev
     container_name: eureka
     restart: always
     ports:
-      - "8761:8761"
+    - "8761:8761"
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 700m
     cpus: "1.2"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx512m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx512m
 
   config-server:
-    build: 
+    build:
       context: ./configServer
       dockerfile: Dockerfile.dev
     container_name: config-server
     restart: always
     ports:
-      - "8888:8888"
+    - "8888:8888"
     depends_on:
-      - eureka
+    - eureka
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 300m
     cpus: "0.6"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx200m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx200m
 
   gateway:
-    build: 
+    build:
       context: ./gateway
       dockerfile: Dockerfile.dev
     container_name: gateway
     restart: always
     ports:
-      - "8080:8080"
+    - "8080:8080"
     depends_on:
-      - eureka
-      - config-server
+    - eureka
+    - config-server
     networks:
-      - micro-net
+    - micro-net
     mem_limit: 600m
     cpus: "1.0"
     environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   db:
     image: postgres:15
     container_name: db
     restart: always
     ports:
-      - "2500:5432"
+    - "2500:5432"
     mem_limit: 800m
     cpus: "1.5"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=userdb
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=userdb
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+    - postgres-data:/var/lib/postgresql/data
     networks:
-      - micro-net
+    - micro-net
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     restart: always
     ports:
-      - "2181:2181"
+    - "2181:2181"
     mem_limit: 500m
     cpus: "0.6"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     volumes:
-      - zookeeper-data:/var/lib/zookeeper/data
-      - zookeeper-logs:/var/lib/zookeeper/log
+    - zookeeper-data:/var/lib/zookeeper/data
+    - zookeeper-logs:/var/lib/zookeeper/log
     networks:
-      - micro-net
+    - micro-net
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
     restart: always
     ports:
-      - "19092:9092"
+    - "19092:9092"
     depends_on:
-      - zookeeper
+    - zookeeper
     mem_limit: 1.2g
     cpus: "2.0"
     environment:
@@ -170,12 +193,13 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
-      - kafka-data:/var/lib/kafka/data
+    - kafka-data:/var/lib/kafka/data
     networks:
-      - micro-net
+    - micro-net
 
 networks:
   micro-net:
+
 
 volumes:
   postgres-data:
