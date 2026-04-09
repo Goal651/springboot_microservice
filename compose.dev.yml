@@ -1,26 +1,4 @@
 services:
-  notification-service:
-    build:
-      context: ./notificationService
-      dockerfile: Dockerfile.dev
-    container_name: notification-service
-    volumes:
-    - ./notificationService/target:/app/target
-    - ./notificationService/src:/app/src
-    - ~/.m2:/root/.m2
-    restart: always
-    ports:
-    - "8082:8082"
-    depends_on:
-    - eureka
-    - kafka
-    networks:
-    - micro-net
-    mem_limit: 400m
-    cpus: "0.8"
-    environment:
-    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
-
   user-service:
     build:
       context: ./userService
@@ -67,28 +45,28 @@ services:
     environment:
     - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
-  # mail-service:
-  #   build:
-  #     context: ./mailService
-  #     dockerfile: Dockerfile.dev
-  #   container_name: mail-service
-  #   volumes:
-  #   - ./mailService/target:/app/target
-  #   - ./mailService/src:/app/src
-  #   - ~/.m2:/root/.m2
-  #   restart: always
-  #   ports:
-  #   - "8084:8084"
-  #   depends_on:
-  #   - eureka
-  #   - db
-  #   - kafka
-  #   networks:
-  #   - micro-net
-  #   mem_limit: 600m
-  #   cpus: "1.0"
-  #   environment:
-  #   - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+  mail-service:
+    build:
+      context: ./mailService
+      dockerfile: Dockerfile.dev
+    container_name: mail-service
+    volumes:
+    - ./mailService/target:/app/target
+    - ./mailService/src:/app/src
+    - ~/.m2:/root/.m2
+    restart: always
+    ports:
+    - "8084:8084"
+    depends_on:
+    - eureka
+    - db
+    - kafka
+    networks:
+    - micro-net
+    mem_limit: 600m
+    cpus: "1.0"
+    environment:
+    - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
 
   eureka:
     build:

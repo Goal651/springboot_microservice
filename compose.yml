@@ -1,20 +1,4 @@
 services:
-  notification-service:
-    build: ./notificationService
-    container_name: notification-service
-    restart: always
-    ports:
-      - "8082:8082"
-    depends_on:
-      - eureka
-      - kafka
-    networks:
-      - micro-net
-    mem_limit: 400m
-    cpus: "0.8"
-    environment:
-      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms128m -Xmx256m
-
   user-service:
     build: ./userService
     container_name: user-service
