@@ -10,9 +10,9 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.tutorial</groupId>
-	<artifactId>userService</artifactId>
+	<artifactId>mailService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>userService</name>
+	<name>mailService</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
