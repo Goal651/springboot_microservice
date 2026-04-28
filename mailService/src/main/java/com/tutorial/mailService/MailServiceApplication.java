@@ -1,4 +1,4 @@
-package com.tutorial.userService;
+package com.tutorial.mailService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class MailServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserServiceApplication.class, args);
+		SpringApplication.run(MailServiceApplication.class, args);
 	}
 
 }

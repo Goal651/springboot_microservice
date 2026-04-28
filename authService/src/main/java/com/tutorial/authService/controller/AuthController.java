@@ -24,16 +24,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody UserRequest user) {
-        User savedUser = new User();
-        savedUser.setName(user.getName());
-        savedUser.setEmail(user.getEmail());
-        savedUser.setPassword(user.getPassword());
-        return ResponseEntity.ok(authService.register(savedUser));
+        User newUser = new User();
+        newUser.setName(user.getName());
+        newUser.setEmail(user.getEmail());
+        newUser.setPassword(user.getPassword());
+        User savedUser=authService.register(newUser);
+        authEventProducer.sendUserEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail(),"USER_REGISTERED");
+        return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserRequest userRequest) {
-        authEventProducer.sendUserLoggedInEvent(2L, "test", "jsut in case");
         return ResponseEntity.ok(authService.login(userRequest));
     }
-}
+} 

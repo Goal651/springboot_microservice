@@ -14,16 +14,17 @@ public class AuthEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private static final String TOPIC = "auth-events";
 
-    public void sendUserLoggedInEvent(Long userId, String userName, String userEmail) {
+    public void sendUserEvent(Long userId, String userName, String userEmail,String eventType) {
+        
         AuthEvent event = new AuthEvent(
-            "USER_LOGGED_IN",
+            eventType,
             userId,
             userName,
             userEmail,
             System.currentTimeMillis()
         );
         kafkaTemplate.send(TOPIC, userId.toString(), event);
-        log.info("Sent USER_CREATED event for user: {}", userName);
+        log.info("Sent {} event for user: {}", eventType,userName);
     }
 
 }
