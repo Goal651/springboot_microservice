@@ -39,6 +39,7 @@ services:
     - eureka
     - db
     - kafka
+    - config-server
     networks:
     - micro-net
     mem_limit: 600m
