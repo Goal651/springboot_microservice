@@ -1,10 +1,18 @@
 # Spring Boot Microservices Template
 
-A production-ready microservices architecture template built with Spring Boot 3.5.7, Spring Cloud 2025.0.0, Apache Kafka, and Docker. This template demonstrates best practices for building scalable, resilient microservices with service discovery, API gateway, centralized configuration, event-driven architecture, and database integration.
+![Java](https://img.shields.io/badge/Java-21-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-green)
+![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue)
+![Kafka](https://img.shields.io/badge/Kafka-7.5.0-black)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue)
+
+A complete microservices ecosystem with event-driven architecture. Includes service discovery, 
+centralized config, API gateway, async Kafka messaging, circuit breaking, and database integration — 
+all containerized and ready to clone and extend.
 
 ⭐ **If you find this project helpful, please consider giving it a star!** ⭐
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This template implements a complete microservices ecosystem with event-driven communication:
 
@@ -50,7 +58,7 @@ This template implements a complete microservices ecosystem with event-driven co
                          └───────────────────┘
 ```
 
-## 📦 Components
+## Components
 
 ### 1. **Eureka Server** (Service Discovery)
 
@@ -121,7 +129,7 @@ This template implements a complete microservices ecosystem with event-driven co
 - **Database:** userdb
 - **Credentials:** postgres/postgres
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -348,7 +356,7 @@ spring.kafka.consumer.properties.spring.json.use.type.headers=false
 | Zookeeper            | 2181           | 2181      |
 | PostgreSQL           | 5432           | 2500      |
 
-## 📨 Event-Driven Architecture with Kafka
+## Event-Driven Architecture with Kafka
 
 This template demonstrates asynchronous, event-driven communication between microservices using Apache Kafka.
 
@@ -401,7 +409,7 @@ To add new event types (e.g., order events, payment events):
 4. Implement consumer in the target service
 5. Use separate topics for different event types (best practice)
 
-## 🎯 Adding a New Microservice
+## Adding a New Microservice
 
 Follow these steps to add a new microservice to the template:
 
@@ -523,7 +531,7 @@ Open <http://localhost:8761> to view:
 - Service instances
 - Health status
 
-## 🐛 Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue: Can't connect to database
 
@@ -599,55 +607,7 @@ docker-compose down
    - Inside Docker: `kafka:990092`
    - Outside Docker: `localhost:9092`
 
-## 📚 API Documentation
-
-### User Service Endpoints
-
-#### Get User by ID
-
-```http
-GET /users/{id}
-```
-
-**Response:**
-
-```json
-{
-  "id": 1,
-  "name": "John Doe",
-  "email": "john.doe@example.com"
-}
-```
-
-## 🧪 Testing
-
-### Run Unit Tests
-
-```bash
-# Test specific service
-cd userService
-mvn test
-
-# Test all services
-for dir in eureka gateway configServer userService; do
-  cd $dir && mvn test && cd ..
-done
-```
-
-### Integration Testing
-
-```bash
-# Start services
-docker-compose up -d
-
-# Wait for services to be ready
-sleep 60
-
-# Test endpoints
-curl http://localhost:8080/users/1
-```
-
-## 🚢 Production Deployment
+## Production Deployment
 
 ### Best Practices
 
@@ -696,7 +656,8 @@ curl http://localhost:8080/users/1
    ```
 
    **Volume Management:**
-   ```bash
+
+```bash
    # List volumes
    docker volume ls
 
@@ -722,21 +683,3 @@ curl http://localhost:8080/users/1
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 🙏 Acknowledgments
-
-- Spring Boot Team
-- Spring Cloud Team
-- Netflix OSS Team
-
-## 📧 Support
-
-For questions or issues:
-
-- Open an issue on GitHub
-- Check existing documentation
-- Review Spring Cloud documentation: <https://spring.io/projects/spring-cloud>
-
----
-
-## Happy Coding! 🚀
