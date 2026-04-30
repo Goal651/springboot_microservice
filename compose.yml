@@ -198,7 +198,7 @@ services:
     container_name: kafka
     restart: always
     ports:
-      - "19092:9092"
+      - "19092:29092"
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -217,10 +217,11 @@ services:
     networks:
       - micro-net
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list"]
       interval: 10s
       timeout: 10s
       retries: 5
+      start_period: 15s
 
 networks:
   micro-net:
