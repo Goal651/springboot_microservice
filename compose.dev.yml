@@ -18,7 +18,7 @@ services:
       kafka:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${MANAGEMENT_PORT}/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -35,14 +35,13 @@ services:
     build:
       context: ./authService
       dockerfile: Dockerfile.dev
-    container_name: auth-service
+    deploy:
+      replicas: 2
     volumes:
     - ./authService/target:/app/target
     - ./authService/src:/app/src
     - ~/.m2:/root/.m2
     restart: always
-    ports:
-    - "8083:8083"
     depends_on:
       eureka:
         condition: service_healthy
@@ -53,7 +52,7 @@ services:
       config-server:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${MANAGEMENT_PORT}/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
