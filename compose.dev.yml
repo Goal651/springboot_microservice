@@ -12,9 +12,17 @@ services:
     ports:
     - "8081:8081"
     depends_on:
-    - eureka
-    - db
-    - kafka
+      eureka:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
     - micro-net
     mem_limit: 600m
@@ -36,10 +44,19 @@ services:
     ports:
     - "8083:8083"
     depends_on:
-    - eureka
-    - db
-    - kafka
-    - config-server
+      eureka:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
     - micro-net
     mem_limit: 600m
@@ -61,9 +78,17 @@ services:
     ports:
     - "8084:8084"
     depends_on:
-    - eureka
-    - db
-    - kafka
+      eureka:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
     - micro-net
     mem_limit: 600m
@@ -86,6 +111,11 @@ services:
     cpus: "1.2"
     environment:
     - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   config-server:
     build:
@@ -96,7 +126,13 @@ services:
     ports:
     - "8888:8888"
     depends_on:
-    - eureka
+      eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
     - micro-net
     mem_limit: 300m
@@ -113,8 +149,15 @@ services:
     ports:
     - "8080:8080"
     depends_on:
-    - eureka
-    - config-server
+      eureka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
     - micro-net
     mem_limit: 600m
@@ -138,6 +181,11 @@ services:
     - postgres-data:/var/lib/postgresql/data
     networks:
     - micro-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -155,6 +203,11 @@ services:
     - zookeeper-logs:/var/lib/zookeeper/log
     networks:
     - micro-net
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -163,9 +216,15 @@ services:
     ports:
     - "19092:9092"
     depends_on:
-    - zookeeper
+      zookeeper:
+        condition: service_healthy
     mem_limit: 1.2g
     cpus: "2.0"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
