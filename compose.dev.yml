@@ -3,14 +3,13 @@ services:
     build:
       context: ./userService
       dockerfile: Dockerfile.dev
-    container_name: user-service
+    deploy:
+      replicas: 2
     volumes:
     - ./userService/target:/app/target
     - ./userService/src:/app/src
     - ~/.m2:/root/.m2
     restart: always
-    ports:
-    - "8081:8081"
     depends_on:
       eureka:
         condition: service_healthy
