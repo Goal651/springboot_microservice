@@ -1,298 +1,198 @@
-# Spring Boot Microservices Template
+# Advanced Spring Boot Microservices Template
 
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-green)
-![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue)
-![Kafka](https://img.shields.io/badge/Kafka-7.5.0-black)
-![Docker](https://img.shields.io/badge/Docker-Compose-blue)
+A production-ready, highly-scalable microservice template built with Spring Boot 3.x, designed for high performance, resilience, and operational excellence.
 
-A complete microservices ecosystem with event-driven architecture. Includes service discovery, 
-centralized config, API gateway, async Kafka messaging, circuit breaking, and database integration — 
-all containerized and ready to clone and extend.
+---
 
-⭐ **If you find this project helpful, please consider giving it a star!** ⭐
+## System Architecture
 
-## Architecture Overview
+```
+                     +------------------+
+                     |   Client Apps    |
+                     +--------+---------+
+                              |
+                              v
+                     +------------------+
+                     |  API Gateway     |
+                     |      :8080       |
+                     +--------+---------+
+                              |
+            +-----------------+-----------------+
+            |                 |                 |
+            v                 v                 v
+    +-----------+     +-----------+     +-----------+
+    | Auth      |     | User      |     | Mail      |
+    | Service   |     | Service   |     | Service   |
+    |   :8083   |     |   :8081   |     |   :8084   |
+    +-----+-----+     +-----+-----+     +-----+-----+
+          |                 |                 |
+          |                 |                 |
+          |    +------------+------------+     |
+          |    |                         |     |
+          |    v                         v     |
+          |  +-----+                 +-----+   |
+          |  |Redis|                 |Kafka|   |
+          |  |:6379|                 |:9092|   |
+          |  +-----+                 +--+--+   |
+          |    |                        |      |
+          |    |                        |      |
+          v    v                        v      v
+    +-------------------------------------------------+
+    |              PostgreSQL :5432                   |
+    +-------------------------------------------------+
 
-This template implements a complete microservices ecosystem with event-driven communication:
+    Service Discovery & Config:
+    +----------------+      +----------------+
+    | Eureka Server  |      | Config Server  |
+    |     :8761      |      |     :8888      |
+    +----------------+      +----------------+
 
-```sh
-┌─────────────┐
-│   Client    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│      API Gateway (Port 8080)        │
-│   - Request Routing                 │
-│   - Load Balancing                  │
-└──────┬──────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  Eureka Server (Port 8761)          │
-│   - Service Discovery               │
-│   - Service Registry                │
-└──────┬──────────────────────────────┘
-       │
-       ├──────────────────┬─────────────────┬──────────────────┐
-       ▼                  ▼                 ▼                  ▼
-┌─────────────┐   ┌──────────────┐  ┌──────────────┐  ┌─────────────┐
-│Config Server│   │ User Service │  │ Notification │  │   Future    │
-│ (Port 8888) │   │ (Port 8081)  │  │   Service    │  │  Services   │
-└─────────────┘   └──────┬───────┘  │ (Port 8082)  │  └─────────────┘
-                         │          └──────▲───────┘
-                         │                 │
-                         ▼                 │
-                  ┌──────────────┐         │
-                  │  PostgreSQL  │         │
-                  │ (Port 2500)  │         │
-                  └──────────────┘         │
-                         │                 │
-                         └─────────────────┘
-                                   │
-                         ┌─────────▼─────────┐
-                         │  Kafka + Zookeeper│
-                         │  (Ports 9092/2181)│
-                         │  Event Streaming  │
-                         └───────────────────┘
+    All services register with Eureka and fetch config from Config Server.
 ```
 
-## Components
+---
 
-### 1. **Eureka Server** (Service Discovery)
+## Technology Stack
 
-- **Port:** 8761
-- **Purpose:** Service registry for dynamic service discovery
-- **Dashboard:** <http://localhost:8761>
+| Category | Technology |
+| :--- | :--- |
+| **Core** | Java 21, Spring Boot 3.5.x, Spring Cloud 2025 |
+| **Persistence** | PostgreSQL, Spring Data JPA |
+| **Caching** | Redis (with JSON Serialization) |
+| **Messaging** | Apache Kafka |
+| **Discovery** | Netflix Eureka |
+| **Gateway** | Spring Cloud Gateway |
+| **Configuration** | Spring Cloud Config Server |
+| **Resilience** | Resilience4j, Spring Retry |
+| **Deployment** | Docker Compose, Kubernetes (StatefulSets & Deployments) |
 
-### 2. **API Gateway**
+---
 
-- **Port:** 8080
-- **Purpose:** Single entry point for all client requests
-- **Features:**
-  - Routing to microservices
-  - Load balancing
-  - Eureka integration
+## Core Workflows
 
-### 3. **Config Server**
+### 1. Authentication & Security
 
-- **Port:** 8888
-- **Purpose:** Centralized configuration management
-- **Features:** Externalized configuration for all services
+```
+    Client           API Gateway        Auth Service       User Service
+      |                   |                  |                  |
+      | POST /auth/login  |                  |                  |
+      |------------------>|                  |                  |
+      |                   | Forward Request   |                  |
+      |                   |------------------>|                  |
+      |                   | Validate Creds    |                  |
+      |                   |                  |----------------->|
+      |                   |                  |                  |
+      |                   |                  | User Details     |
+      |                   |                  |<-----------------|
+      |                   |                  |                  |
+      |                   | JWT Token        |                  |
+      |                   |<------------------|                  |
+      |                   |                  |                  |
+      | 200 OK (JWT)      |                  |                  |
+      |<------------------|                  |                  |
+```
 
-### 4. **User Service** (Example Microservice)
+### 2. Event-Driven Communication (Kafka)
 
-- **Port:** 8081
-- **Purpose:** Demonstrates a complete microservice with database integration
-- **Features:**
-  - RESTful API endpoints
-  - PostgreSQL database integration
-  - JPA/Hibernate ORM
-  - Kafka event producer (publishes user events)
-  - OpenFeign client for inter-service communication
-  - Resilience4j for circuit breaker pattern
-  - Spring Boot Actuator for monitoring
+```
+    User Service            Kafka Topic            Mail Service           SMTP Server
+         |                      |                      |                      |
+         | Publish USER_CREATED  |                      |                      |
+         |--------------------->|                      |                      |
+         |                      | Consume Event        |                      |
+         |                      |--------------------->|                      |
+         |                      |                      | Send Welcome Email   |
+         |                      |                      |--------------------->|
+```
 
-### 5. **Mail Service** (Event Consumer)
+### 3. Distributed Caching (Redis)
 
-- **Port:** 8082
-- **Purpose:** Demonstrates event-driven microservice architecture
-- **Features:**
-  - Kafka event consumer (listens to user events)
-  - Processes USER_CREATED, USER_UPDATED, USER_DELETED events
-  - Asynchronous event processing
-  - Decoupled from User Service
+```
+                    Get User By ID
+                          |
+                          v
+                 +----------------+
+                 | Redis Cache?   |
+                 +-------+--------+
+                         |
+           +-------------+-------------+
+           |                           |
+           v                           v
+        (Hit)                       (Miss)
+           |                           |
+           v                           v
+    Return User              Query PostgreSQL
+                                |
+                                v
+                         Save to Cache
+                                |
+                                v
+                         Return User
+```
 
-### 6. **Apache Kafka** (Event Streaming Platform)
+---
 
-- **Port:** 9092 (external), 29092 (internal)
-- **Purpose:** Message broker for asynchronous communication between services
-- **Features:**
-  - Event streaming and pub/sub messaging
-  - Decouples microservices
-  - Enables event-driven architecture
-  - Auto-creates topics on demand
+## Kubernetes Deployment
 
-### 7. **Apache Zookeeper**
+We provide a full-scale Kubernetes orchestration setup in the `k8s/` directory.
 
-- **Port:** 2181
-- **Purpose:** Coordination service for Kafka
-- **Features:**
-  - Manages Kafka cluster metadata
-  - Handles leader election
-  - Tracks broker membership
+```bash
+# 1. Create Namespace
+kubectl apply -f k8s/namespace.yaml
 
-### 8. **PostgreSQL Database**
+# 2. Setup Config & Secrets
+kubectl apply -f k8s/app-config.yaml
+kubectl apply -f k8s/app-secrets.yaml
 
-- **Port:** 2500 (host) → 5432 (container)
-- **Database:** userdb
-- **Credentials:** postgres/postgres
+# 3. Deploy Infrastructure
+kubectl apply -f k8s/infrastructure/ --recursive
+
+# 4. Deploy Services
+kubectl apply -f k8s/config-server/
+kubectl apply -f k8s/user-service/
+kubectl apply -f k8s/auth-service/
+kubectl apply -f k8s/mail-service/
+kubectl apply -f k8s/gateway/
+```
+
+---
+
+## Project Structure
+
+```text
+.
+├── authService/        # JWT & Authentication Logic
+├── userService/        # User Management & Redis Caching
+├── mailService/        # Kafka Consumer for Notifications
+├── gateway/            # Spring Cloud Gateway
+├── eureka/             # Service Discovery
+├── configServer/       # Centralized Configuration
+├── k8s/                # Kubernetes Manifests
+└── compose.yml         # Local Development Orchestration
+```
+
+---
 
 ## Quick Start
 
-### Prerequisites
-
-- **Java 21** or higher
-- **Maven 3.9+**
-- **Docker** and **Docker Compose**
-- **Git**
-
-### Running the Application
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/Goal651/springboot_microservice
-   cd SPRINGBOOT_MICROSERVICE
-   ```
-
-2. **Start all services with Docker Compose**
-
-   ```bash
-   docker-compose up --build
-   ```
-
-   This command will:
-   - Build all Docker images
-   - Start Zookeeper (Kafka coordinator)
-   - Start Kafka broker
-   - Start PostgreSQL database
-   - Start Eureka Server
-   - Start Config Server
-   - Start API Gateway
-   - Start User Service (Kafka producer)
-   - Start Notification Service (Kafka consumer)
-
-3. **Wait for services to start** (approximately 3-4 minutes)
-   - Monitor logs: `docker-compose logs -f`
-   - Check Eureka Dashboard: <http://localhost:8761>
-   - Kafka takes ~30 seconds to be ready
-
-4. **Verify services are registered**
-   - Open <http://localhost:8761>
-   - You should see `USER-SERVICE`, `MAIL-SERVICE`, `API-GATEWAY`, and `CONFIG-SERVER` registered
-
-### Testing the Application
-
-**Access User Service through API Gateway:**
-
+### Docker Development
 ```bash
-curl http://localhost:8080/users/1
+# Start everything
+docker compose up -d
+
+# Check health
+curl http://localhost:8080/actuator/health
 ```
 
-**Direct access to User Service:**
+### Monitoring
+- **Eureka Dashboard**: <http://localhost:8761>
+- **Config Server**: <http://localhost:8888/user-service/default>
+- **Redis Stats**: `docker exec -it redis redis-cli info`
 
-```bash
-curl http://localhost:8081/users/1
-```
+---
 
-**Check service health:**
-
-```bash
-curl http://localhost:8081/actuator/health
-```
-
-**Test Kafka Event Flow:**
-
-```bash
-# Create a user (triggers Kafka event)
-curl http://localhost:8081/users/1
-
-# Check mail-service logs to see event consumed
-docker-compose logs -f mail-service
-
-# You should see:
-# "Received user event: UserEvent(...)"
-# "Processing USER_CREATED event for user: John Doe"
-```
-
-## 🛠️ Technology Stack
-
-### Core Framework
-
-- **Spring Boot:** 3.5.7
-- **Spring Cloud:** 2025.0.0
-- **Java:** 21
-
-### Spring Cloud Components
-
-- **Netflix Eureka:** Service discovery
-- **Spring Cloud Gateway:** API gateway
-- **Spring Cloud Config:** Centralized configuration
-- **OpenFeign:** Declarative REST client
-- **Resilience4j:** Circuit breaker, retry, rate limiter
-
-### Database & Persistence
-
-- **PostgreSQL:** 15
-- **Spring Data JPA:** Data access layer
-- **Hibernate:** ORM framework
-
-### Event Streaming
-
-- **Apache Kafka:** 7.5.0 (Confluent Platform)
-- **Apache Zookeeper:** 7.5.0 (Confluent Platform)
-- **Spring Kafka:** Event-driven messaging
-
-### Additional Libraries
-
-- **Lombok:** Reduce boilerplate code
-- **Spring Boot Actuator:** Production monitoring
-- **Spring Boot DevTools:** Development productivity
-
-### Containerization
-
-- **Docker:** Containerization
-- **Docker Compose:** Multi-container orchestration
-
-## 📁 Project Structure
-
-```sh
-SPRINGBOOT_MICROSERVICE/
-├── eureka/                    # Service Discovery Server
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-├── gateway/                   # API Gateway
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-├── configServer/              # Config Server
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-├── userService/               # User Microservice (Kafka Producer)
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       │   └── com/tutorial/userService/
-│   │       │       ├── controller/      # REST controllers
-│   │       │       ├── model/           # JPA entities
-│   │       │       ├── repositories/    # Data repositories
-│   │       │       ├── services/        # Business logic
-│   │       │       ├── producer/        # Kafka producers
-│   │       │       ├── dto/             # Data transfer objects
-│   │       │       ├── config/          # Kafka configuration
-│   │       │       └── client/          # Feign clients
-│   │       └── resources/
-│   │           └── application.properties
-│   ├── Dockerfile
-│   └── pom.xml
-├── notificationService/       # Notification Service (Kafka Consumer)
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       │   └── com/tutorial/notificationService/
-│   │       │       ├── consumer/        # Kafka consumers
-│   │       │       └── dto/             # Data transfer objects
-│   │       └── resources/
-│   │           └── application.properties
-│   ├── Dockerfile
-│   └── pom.xml
-└── docker-compose.yml         # Docker orchestration (includes Kafka & Zookeeper)
-```
-
-## Event-Driven Architecture with Kafka
-
-This template demonstrates asynchronous, event-driven communication between microservices using Apache Kafka.
+## Design & Performance
+- **Optimized Resource Limits**: Tailored CPU/Memory limits for each service.
+- **Circuit Breakers**: Implemented via Resilience4j to prevent cascading failures.
+- **JSON Caching**: Redis values are stored as JSON for cross-service readability.
+- **Stateful Infrastructure**: K8s deployments use `StatefulSet` for DB and Kafka stability.
