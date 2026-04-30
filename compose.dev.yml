@@ -192,6 +192,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -214,6 +215,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
