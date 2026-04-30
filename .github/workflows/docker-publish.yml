@@ -65,12 +65,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push userService
         uses: docker/build-push-action@v4
         with:
           context: ./userService
           push: true
-          tags: ghcr.io/${{ github.repository }}/user-service:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/user-service:latest
 
   # Build authService
   build-authService:
@@ -91,12 +94,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push authService
         uses: docker/build-push-action@v4
         with:
           context: ./authService
           push: true
-          tags: ghcr.io/${{ github.repository }}/auth-service:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/auth-service:latest
 
   # Build mailService
   build-mailService:
@@ -117,12 +123,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push mailService
         uses: docker/build-push-action@v4
         with:
           context: ./mailService
           push: true
-          tags: ghcr.io/${{ github.repository }}/mail-service:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/mail-service:latest
 
   # Build eureka
   build-eureka:
@@ -143,12 +152,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push eureka
         uses: docker/build-push-action@v4
         with:
           context: ./eureka
           push: true
-          tags: ghcr.io/${{ github.repository }}/eureka:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/eureka:latest
 
   # Build configServer
   build-configServer:
@@ -169,12 +181,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push configServer
         uses: docker/build-push-action@v4
         with:
           context: ./configServer
           push: true
-          tags: ghcr.io/${{ github.repository }}/config-server:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/config-server:latest
 
   # Build gateway
   build-gateway:
@@ -195,9 +210,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push gateway
         uses: docker/build-push-action@v4
         with:
           context: ./gateway
           push: true
-          tags: ghcr.io/${{ github.repository }}/gateway:latest
+          tags: ghcr.io/${{ env.REPO_LOWER }}/gateway:latest
