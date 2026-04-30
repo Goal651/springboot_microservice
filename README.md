@@ -296,27 +296,3 @@ SPRINGBOOT_MICROSERVICE/
 ## Event-Driven Architecture with Kafka
 
 This template demonstrates asynchronous, event-driven communication between microservices using Apache Kafka.
-
-### How It Works
-
-1. **User Service (Producer)** publishes events when users are created/updated/deleted
-2. **Kafka** stores these events in the `user-events` topic
-3. **Notification Service (Consumer)** listens to events and processes them asynchronously
-
-### Event Flow Example
-
-```mermaid
-Client → POST /users/1 → userService
-                            ↓
-                    Save to PostgreSQL
-                            ↓
-                    Publish UserEvent to Kafka
-                            ↓
-                    Return response to client (fast!)
-                            ↓
-                         Kafka Topic
-                            ↓
-                    notificationService receives event
-                            ↓
-                    Process notification (send email, log, etc.)
-```
