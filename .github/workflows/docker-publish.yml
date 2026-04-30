@@ -1,0 +1,203 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "userService/**"
+      - "authService/**"
+      - "mailService/**"
+      - "eureka/**"
+      - "configServer/**"
+      - "gateway/**"
+      - ".github/workflows/docker-publish.yml"
+
+jobs:
+  # Detect which services changed
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      userService: ${{ steps.filter.outputs.userService }}
+      authService: ${{ steps.filter.outputs.authService }}
+      mailService: ${{ steps.filter.outputs.mailService }}
+      eureka: ${{ steps.filter.outputs.eureka }}
+      configServer: ${{ steps.filter.outputs.configServer }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            userService:
+              - 'userService/**'
+            authService:
+              - 'authService/**'
+            mailService:
+              - 'mailService/**'
+            eureka:
+              - 'eureka/**'
+            configServer:
+              - 'configServer/**'
+            gateway:
+              - 'gateway/**'
+
+  # Build userService
+  build-userService:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.userService == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push userService
+        uses: docker/build-push-action@v4
+        with:
+          context: ./userService
+          push: true
+          tags: ghcr.io/${{ github.repository }}/user-service:latest
+
+  # Build authService
+  build-authService:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.authService == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push authService
+        uses: docker/build-push-action@v4
+        with:
+          context: ./authService
+          push: true
+          tags: ghcr.io/${{ github.repository }}/auth-service:latest
+
+  # Build mailService
+  build-mailService:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.mailService == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push mailService
+        uses: docker/build-push-action@v4
+        with:
+          context: ./mailService
+          push: true
+          tags: ghcr.io/${{ github.repository }}/mail-service:latest
+
+  # Build eureka
+  build-eureka:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.eureka == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push eureka
+        uses: docker/build-push-action@v4
+        with:
+          context: ./eureka
+          push: true
+          tags: ghcr.io/${{ github.repository }}/eureka:latest
+
+  # Build configServer
+  build-configServer:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.configServer == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push configServer
+        uses: docker/build-push-action@v4
+        with:
+          context: ./configServer
+          push: true
+          tags: ghcr.io/${{ github.repository }}/config-server:latest
+
+  # Build gateway
+  build-gateway:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: ./gateway
+          push: true
+          tags: ghcr.io/${{ github.repository }}/gateway:latest
