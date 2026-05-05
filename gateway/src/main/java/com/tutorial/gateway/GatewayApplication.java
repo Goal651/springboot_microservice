@@ -23,5 +23,5 @@ public class GatewayApplication {
                 .route("auth-service", r -> r.path("/auth/**")
                         .uri("lb://auth-service"))
                 .build();
-    }
+    } 
 }

@@ -13,7 +13,7 @@
 	<artifactId>gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gateway</name>
-	<description>Demo project for Spring Boot</description>
+	<description>This is a simple API gateway built with Spring Cloud Gateway</description>
 	<url/>
 	<licenses>
 		<license/>
