@@ -20,6 +20,7 @@ A production-ready Spring Boot 3 microservices template. Includes service discov
 - [Technology Stack](#technology-stack)
 - [Core Workflows](#core-workflows)
 - [Quick Start](#quick-start)
+- [Performance](#performance)
 - [Configuration](#configuration)
 - [Kafka Topics](#kafka-topics)
 - [Redis Caching](#redis-caching)
@@ -27,6 +28,7 @@ A production-ready Spring Boot 3 microservices template. Includes service discov
 - [Adding a New Service](#adding-a-new-service)
 - [Kubernetes](#kubernetes)
 - [Common Issues](#common-issues)
+- [Port Reference](#port-reference)
 
 ---
 
@@ -115,6 +117,7 @@ A production-ready Spring Boot 3 microservices template. Includes service discov
 | Security | Spring Security, JWT (jjwt 0.12.5) |
 | Resilience | Resilience4j Circuit Breaker, Spring Retry |
 | Monitoring | Spring Boot Actuator |
+| Load Testing | Gatling 3.10.5 |
 | Containerization | Docker, Docker Compose |
 | Orchestration | Kubernetes (Deployments, StatefulSets, HPA) |
 
@@ -257,6 +260,40 @@ curl http://localhost:8080/actuator/health
 
 # Eureka dashboard
 open http://localhost:8761
+```
+
+---
+
+## Performance
+
+Load tested with [Gatling](https://gatling.io) — 50 concurrent users, 30 second ramp,
+6 concurrent scenarios running simultaneously against the full stack through the API gateway.
+
+| Metric | Result |
+| :--- | :--- |
+| Total Requests | 466 |
+| Success Rate | 100% |
+| Mean Response Time | 10ms |
+| 50th Percentile | 5ms |
+| 95th Percentile | 46ms |
+| 99th Percentile | 72ms |
+| Max Response Time | 150ms |
+| Throughput | 12.9 req/sec |
+
+`GET /users/{id}` achieved **6ms p95** — Redis cache serving repeated lookups without hitting PostgreSQL.
+
+![Gatling Overview](docs/image1.png)
+![Gatling Stats](docs/image2.png)
+![Active Users](docs/image3.png)
+
+Run load tests yourself:
+
+```bash
+cd load-tests
+mvn gatling:test -DbaseUrl=http://localhost:8080 -Djwt=YOUR_JWT_TOKEN
+
+# Higher load
+mvn gatling:test -DbaseUrl=http://localhost:8080 -Djwt=YOUR_JWT_TOKEN -Dusers=200 -Dramp=60
 ```
 
 ---
@@ -442,6 +479,7 @@ Check if `spring-boot-starter-web` is in `pom.xml`. Without it, Spring Boot runs
 
 **Kafka deserialization errors**
 Ensure producer and consumer DTOs match. Disable type headers:
+
 ```properties
 spring.kafka.producer.properties.spring.json.add.type.headers=false
 spring.kafka.consumer.properties.spring.json.use.type.headers=false
