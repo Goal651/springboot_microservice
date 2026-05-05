@@ -167,6 +167,7 @@ services:
     cpus: "1.0"
     environment:
     - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport -Xms256m -Xmx384m
+    env_file: .env
 
   db:
     image: postgres:15
