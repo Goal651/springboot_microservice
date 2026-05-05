@@ -50,7 +50,6 @@
                 <version>${gatling-maven-plugin.version}</version>
                 <configuration>
                     <simulationClass>simulations.UserServiceSimulation</simulationClass>
-                    <!-- Override via -DbaseUrl=http://... -Dusers=100 -Dramp=60 -->
                 </configuration>
             </plugin>
         </plugins>
