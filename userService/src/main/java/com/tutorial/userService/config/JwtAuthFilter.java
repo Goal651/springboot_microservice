@@ -41,8 +41,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         System.out.println(path);
 
         boolean isExcludedPath = path.startsWith("/auth/") ||
-                path.startsWith("/public/") ||
+                path.startsWith("/users") ||
                 path.startsWith("/actuator");
+
 
         if (isExcludedPath) {
             filterChain.doFilter(request, response);
@@ -58,7 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (!result.isValid()) {
             throw new AccessDeniedException("Verification failed.");
-        }
+        } 
 
         String username = result.getEmail();
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

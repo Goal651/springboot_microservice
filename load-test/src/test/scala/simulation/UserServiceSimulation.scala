@@ -13,10 +13,14 @@ class UserServiceSimulation extends Simulation {
   val users   = System.getProperty("users", "50").toInt
   val rampSec = System.getProperty("ramp", "30").toInt
 
+  // Put your actual JWT token here — get one from POST /auth/login first
+  val jwtToken = System.getProperty("jwt", "your-jwt-token-here")
+
   val httpProtocol = http
     .baseUrl(baseUrl)
     .acceptHeader("application/json")
     .contentTypeHeader("application/json")
+    .authorizationHeader(s"Bearer $jwtToken")
     .userAgentHeader("Gatling LoadTest")
 
   // ─── Feeders ──────────────────────────────────────────────────────────────
@@ -26,7 +30,8 @@ class UserServiceSimulation extends Simulation {
     "email" -> s"user_${Random.alphanumeric.take(8).mkString}@test.com"
   ))
 
-  val userIdFeeder = (1 to 100).map(i => Map("userId" -> i)).iterator
+  // Infinite circular feeder — never runs out
+  val userIdFeeder = Iterator.continually(Iterator.from(1).take(100)).flatten.map(i => Map("userId" -> i))
 
   // ─── Scenarios ────────────────────────────────────────────────────────────
 
@@ -121,11 +126,12 @@ class UserServiceSimulation extends Simulation {
           """{"name": "#{name}", "email": "#{email}"}"""
         )).asJson
         .check(status.is(200))
+        .check(jsonPath("$.id").saveAs("newUserId"))
     )
     .pause(1.second)
     .exec(
       http("PUT update user")
-        .put("/users/#{userId}")
+        .put("/users/#{newUserId}")
         .body(StringBody(
           """{"name": "#{name}_updated", "email": "#{email}"}"""
         )).asJson
