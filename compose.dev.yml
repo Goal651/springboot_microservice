@@ -69,14 +69,13 @@ services:
     build:
       context: ./mailService
       dockerfile: Dockerfile.dev
-    container_name: mail-service
     volumes:
     - ./mailService/target:/app/target
     - ./mailService/src:/app/src
     - ~/.m2:/root/.m2
     restart: always
-    ports:
-    - "8084:8084"
+    deploy:
+      replicas: 2
     depends_on:
       eureka:
         condition: service_healthy
