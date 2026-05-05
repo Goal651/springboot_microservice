@@ -13,7 +13,7 @@
 	<artifactId>eureka</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>eureka</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Eureka Service Discovery Server</description>
 	<url />
 	<licenses>
 		<license />
