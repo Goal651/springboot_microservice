@@ -7,6 +7,7 @@ import com.tutorial.authService.models.User;
 import com.tutorial.authService.producer.AuthEventProducer;
 import com.tutorial.authService.services.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,18 +24,19 @@ public class AuthController {
     private final AuthEventProducer authEventProducer;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody UserRequest user) {
+    public ResponseEntity<User> register(@Valid @RequestBody UserRequest user) {
         User newUser = new User();
         newUser.setName(user.getName());
         newUser.setEmail(user.getEmail());
         newUser.setPassword(user.getPassword());
-        User savedUser=authService.register(newUser);
-        authEventProducer.sendUserEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail(),"USER_REGISTERED");
+        User savedUser = authService.register(newUser);
+        authEventProducer.sendUserEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail(),
+                "USER_REGISTERED");
         return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<String> login(@Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.ok(authService.login(userRequest));
     }
-} 
+}

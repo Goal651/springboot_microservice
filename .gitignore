@@ -2,3 +2,5 @@
 .env
 app-config.yaml
 app-secrets.yaml
+.metals
+.bloop
