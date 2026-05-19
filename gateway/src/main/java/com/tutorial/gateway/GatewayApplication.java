@@ -27,6 +27,7 @@ public class GatewayApplication {
                             c.setKeyResolver(ipKeyResolver());
                         }))
                         .uri("lb://user-service"))
+                        
                 .route("auth-service", r -> r.path("/auth/**")
                         .filters(f -> f.requestRateLimiter(c -> {
                             c.setRateLimiter(redisRateLimiter());

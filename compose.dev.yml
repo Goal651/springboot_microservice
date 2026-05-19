@@ -123,6 +123,10 @@ services:
       context: ./configServer
       dockerfile: Dockerfile.dev
     container_name: config-server
+    volumes:
+    - ./configServer/target:/app/target
+    - ./configServer/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
     - "8888:8888"
@@ -147,6 +151,10 @@ services:
       context: ./gateway
       dockerfile: Dockerfile.dev
     container_name: gateway
+    volumes:
+    - ./gateway/target:/app/target
+    - ./gateway/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
     - "8080:8080"
@@ -154,6 +162,8 @@ services:
       eureka:
         condition: service_healthy
       config-server:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${MANAGEMENT_PORT}/actuator/health || exit 1"]
