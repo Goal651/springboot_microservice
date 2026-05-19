@@ -38,14 +38,16 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = userService.createUser(user);
-        userEventProducer.sendUserCreatedEvent(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
+        userEventProducer.sendUserCreatedEvent(createdUser.getId(),
+                createdUser.getFirstName() + " " + createdUser.getLastName(), createdUser.getEmail());
         return ResponseEntity.ok(createdUser);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
         User updatedUser = userService.updateUser(id, user);
-        userEventProducer.sendUserUpdatedEvent(updatedUser.getId(), updatedUser.getName(), updatedUser.getEmail());
+        userEventProducer.sendUserUpdatedEvent(updatedUser.getId(),
+                updatedUser.getFirstName() + " " + updatedUser.getLastName(), updatedUser.getEmail());
         return ResponseEntity.ok(updatedUser);
     }
 
