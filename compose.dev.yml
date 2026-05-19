@@ -84,7 +84,7 @@ services:
       kafka:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${MANAGEMENT_PORT}/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -123,6 +123,10 @@ services:
       context: ./configServer
       dockerfile: Dockerfile.dev
     container_name: config-server
+    volumes:
+    - ./configServer/target:/app/target
+    - ./configServer/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
     - "8888:8888"
@@ -134,7 +138,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 50s
     networks:
     - micro-net
     mem_limit: 300m
@@ -147,6 +151,10 @@ services:
       context: ./gateway
       dockerfile: Dockerfile.dev
     container_name: gateway
+    volumes:
+    - ./gateway/target:/app/target
+    - ./gateway/src:/app/src
+    - ~/.m2:/root/.m2
     restart: always
     ports:
     - "8080:8080"
@@ -155,8 +163,10 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${MANAGEMENT_PORT}/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -260,6 +270,63 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  loki:
+    image: grafana/loki:3.1.1
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"
+    command: [ "-config.file=/etc/loki/config.yml" ]
+    volumes:
+      - ./observability/loki-config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    networks:
+      - micro-net
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3100/ready || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  promtail:
+    image: grafana/promtail:3.1.1
+    container_name: promtail
+    restart: always
+    command: [ "-config.file=/etc/promtail/config.yml" ]
+    depends_on:
+      loki:
+        condition: service_healthy
+    volumes:
+      - ./observability/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - promtail-data:/tmp
+    networks:
+      - micro-net
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      loki:
+        condition: service_healthy
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - micro-net
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q ok || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
 networks:
   micro-net:
@@ -271,3 +338,6 @@ volumes:
   zookeeper-logs:
   kafka-data:
   redis-data:
+  loki-data:
+  promtail-data:
+  grafana-data:
