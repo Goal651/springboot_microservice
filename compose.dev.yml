@@ -4,7 +4,7 @@ services:
       context: ./userService
       dockerfile: Dockerfile.dev
     deploy:
-      replicas: 2
+      replicas: 1
     volumes:
       - ./userService/target:/app/target
       - ./userService/src:/app/src
@@ -36,7 +36,7 @@ services:
       context: ./authService
       dockerfile: Dockerfile.dev
     deploy:
-      replicas: 2
+      replicas: 1
     volumes:
       - ./authService/target:/app/target
       - ./authService/src:/app/src
@@ -75,7 +75,7 @@ services:
       - ~/.m2:/root/.m2
     restart: always
     deploy:
-      replicas: 2
+      replicas: 1
     depends_on:
       eureka:
         condition: service_healthy
