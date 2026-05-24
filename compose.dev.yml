@@ -328,6 +328,22 @@ services:
       timeout: 5s
       retries: 5
 
+  zipkin:
+    image: openzipkin/zipkin:3.3
+    container_name: zipkin
+    restart: always
+    ports:
+      - "9411:9411"
+    mem_limit: 512m
+    cpus: "0.8"
+    networks:
+      - micro-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   micro-net:
 
