@@ -75,6 +75,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/user-service:latest
 
+
   # Build authService
   build-authService:
     needs: detect-changes
@@ -132,6 +133,7 @@ jobs:
           context: ./mailService
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/mail-service:latest
+
 
   # Build eureka
   build-eureka:
@@ -191,6 +193,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/config-server:latest
 
+
   # Build gateway
   build-gateway:
     needs: detect-changes
@@ -219,3 +222,4 @@ jobs:
           context: ./gateway
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}/gateway:latest
+    

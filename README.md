@@ -25,6 +25,7 @@ A production-ready Spring Boot 3 microservices template. Includes service discov
 - [Kafka Topics](#kafka-topics)
 - [Redis Caching](#redis-caching)
 - [Health Checks](#health-checks)
+- [Centralized Logging](#centralized-logging)
 - [Adding a New Service](#adding-a-new-service)
 - [Kubernetes](#kubernetes)
 - [Common Issues](#common-issues)
@@ -116,7 +117,7 @@ A production-ready Spring Boot 3 microservices template. Includes service discov
 | Messaging | Apache Kafka 7.5.0, Spring Kafka |
 | Security | Spring Security, JWT (jjwt 0.12.5) |
 | Resilience | Resilience4j Circuit Breaker, Spring Retry |
-| Monitoring | Spring Boot Actuator |
+| Monitoring | Spring Boot Actuator, Loki, Promtail, Grafana |
 | Load Testing | Gatling 3.10.5 |
 | Containerization | Docker, Docker Compose |
 | Orchestration | Kubernetes (Deployments, StatefulSets, HPA) |
@@ -382,6 +383,39 @@ Startup order: `zookeeper` → `kafka` → `db` → `eureka` → `config-server`
 
 ---
 
+## Centralized Logging
+
+Logs are centralized with **Promtail → Loki → Grafana**.
+
+- **Promtail** tails Docker container logs and forwards them to Loki.
+- **Loki** stores and indexes logs.
+- **Grafana** provides querying and visualization.
+
+Start the stack (logging services are already included in compose):
+
+```bash
+docker compose -f compose.dev.yml up --build -d
+```
+
+Access:
+
+- Grafana: `http://localhost:3000`
+- Loki: `http://localhost:3100`
+
+Default Grafana credentials are `admin/admin` (override in `.env` with `GRAFANA_ADMIN_USER` and `GRAFANA_ADMIN_PASSWORD`).
+
+Example LogQL queries in Grafana Explore:
+
+```logql
+{compose_service="gateway"}
+```
+
+```logql
+{compose_project="springboot_microservice"}
+```
+
+---
+
 ## Adding a New Service
 
 **1. Create Spring Boot project** with dependencies: `web`, `actuator`, `eureka-client`, `spring-cloud-config`
@@ -505,6 +539,8 @@ Kafka container listens on `29092` internally. Host port `19092` maps to contain
 | Redis | 6379 | 6379 |
 | Kafka | 19092 | 29092 |
 | Zookeeper | 2181 | 2181 |
+| Grafana | 3000 | 3000 |
+| Loki | 3100 | 3100 |
 
 ---
 

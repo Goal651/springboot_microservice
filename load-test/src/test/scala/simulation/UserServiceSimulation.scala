@@ -26,8 +26,10 @@ class UserServiceSimulation extends Simulation {
   // ─── Feeders ──────────────────────────────────────────────────────────────
 
   val createUserFeeder = Iterator.continually(Map(
-    "name"  -> s"user_${Random.alphanumeric.take(6).mkString}",
-    "email" -> s"user_${Random.alphanumeric.take(8).mkString}@test.com"
+    "firstName" -> s"user_${Random.alphanumeric.take(6).mkString}",
+    "lastName"  -> s"last_${Random.alphanumeric.take(4).mkString}",
+    "email"     -> s"user_${Random.alphanumeric.take(8).mkString}@test.com",
+    "password"  -> "password123"
   ))
 
   // Infinite circular feeder — never runs out
@@ -61,7 +63,7 @@ class UserServiceSimulation extends Simulation {
       http("POST /users")
         .post("/users")
         .body(StringBody(
-          """{"name": "#{name}", "email": "#{email}"}"""
+          """{"firstName": "#{firstName}", "lastName": "#{lastName}", "email": "#{email}", "password": "#{password}"}"""
         )).asJson
         .check(status.is(200))
         .check(responseTimeInMillis.lte(2000))
@@ -76,7 +78,7 @@ class UserServiceSimulation extends Simulation {
       http("PUT /users/{id}")
         .put("/users/#{userId}")
         .body(StringBody(
-          """{"name": "#{name}_updated", "email": "#{email}"}"""
+          """{"firstName": "#{firstName}_updated", "lastName": "#{lastName}_updated", "email": "#{email}"}"""
         )).asJson
         .check(status.in(200, 404))
         .check(responseTimeInMillis.lte(2000))
@@ -123,7 +125,7 @@ class UserServiceSimulation extends Simulation {
       http("POST create user")
         .post("/users")
         .body(StringBody(
-          """{"name": "#{name}", "email": "#{email}"}"""
+          """{"firstName": "#{firstName}", "lastName": "#{lastName}", "email": "#{email}", "password": "#{password}"}"""
         )).asJson
         .check(status.is(200))
         .check(jsonPath("$.id").saveAs("newUserId"))
@@ -133,7 +135,7 @@ class UserServiceSimulation extends Simulation {
       http("PUT update user")
         .put("/users/#{newUserId}")
         .body(StringBody(
-          """{"name": "#{name}_updated", "email": "#{email}"}"""
+          """{"firstName": "#{firstName}_updated", "lastName": "#{lastName}_updated", "email": "#{email}"}"""
         )).asJson
         .check(status.in(200, 404))
     )

@@ -13,7 +13,7 @@ public class KafkaListenerService {
 
     private final EmailService emailService;
 
-    @KafkaListener(topics = "auth-events", groupId = "mail-group-id")
+    @KafkaListener(topics = "${app.kafka.topics.auth-events:auth-events}", groupId = "mail-group-id")
     public void processAuthMessages(AuthEvent data) {
         emailService.sendSimpleEmail(data.getUserEmail(), "Auth Event Received  ", "Hello " + data.getUserName()
                 + ",\n\nWe received an authentication event for your account at " + data.getTimestamp()

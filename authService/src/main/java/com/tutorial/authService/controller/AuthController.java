@@ -26,12 +26,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody UserRequest user) {
         User newUser = new User();
-        newUser.setName(user.getName());
+        newUser.setFirstName(user.getFirstName());
+        newUser.setLastName(user.getLastName());
         newUser.setEmail(user.getEmail());
         newUser.setPassword(user.getPassword());
         User savedUser = authService.register(newUser);
-        authEventProducer.sendUserEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail(),
-                "USER_REGISTERED");
+        authEventProducer.sendUserEvent(savedUser.getId(), savedUser.getFirstName() + " " + savedUser.getLastName(),
+                savedUser.getEmail(), "USER_REGISTERED");
         return ResponseEntity.ok(savedUser);
     }
 

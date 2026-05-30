@@ -39,7 +39,8 @@ public class UserService {
     @CacheEvict(value = "users", key = "'all'")
     public User updateUser(Long id, User userDetails) {
         User existingUser = getUserById(id);
-        existingUser.setName(userDetails.getName());
+        existingUser.setFirstName(userDetails.getFirstName());
+        existingUser.setLastName(userDetails.getLastName());
         existingUser.setEmail(userDetails.getEmail());
         if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
             existingUser.setPassword(userDetails.getPassword());
